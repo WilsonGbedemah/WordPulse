@@ -20,11 +20,21 @@
             <p class="subtitle">Search any word to discover its meaning</p>
         </header>
 
+        <div class="notification" id="notification">
+            <div class="notification-content">
+                <span id="daily-word-text">Today's word: <strong>serendipity</strong></span>
+                <button id="close-notification"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+
         <div class="search-container">
             <div class="search-box">
                 <input type="text" id="searchedWord" placeholder="Enter word..." autocomplete="off">
                 <button id="search-btn"><i class="fas fa-search"></i> Search</button>
                 <button id="clear-btn"><i class="fas fa-times"></i> Clear</button>
+            </div>
+            <div class="search-insights" id="search-insights">
+                <p>Recent searches: <span id="recent-searches">dictionary, book, language</span></p>
             </div>
         </div>
 
@@ -45,11 +55,6 @@
                         <span class="wave-bar"></span>
                         <span class="wave-bar"></span>
                         <span class="wave-bar"></span>
-                    </div>
-                    <div class="progress-container">
-                        <span class="time" id="current-time">0:00</span>
-                        <input type="range" id="progress-bar" class="progress-bar" value="0">
-                        <span class="time" id="duration">0:00</span>
                     </div>
                     <div class="volume-control">
                         <i class="fas fa-volume-up" id="volume-icon"></i>
@@ -74,6 +79,7 @@
                 <div class="action-buttons">
                     <button id="save-btn"><i class="far fa-bookmark"></i> Save to History</button>
                     <button id="load-history-btn"><i class="fas fa-history"></i> Show History</button>
+                    <button id="game-btn"><i class="fas fa-gamepad"></i> Word Game</button>
                 </div>
             </div>
 
@@ -87,8 +93,22 @@
                 <div class="history-list" id="history-list"></div>
                 <button id="clear-history-btn" class="clear-history-btn"><i class="fas fa-trash"></i> Clear History</button>
             </div>
+
+            <div class="game-container" id="game-container" style="display: none;">
+                <h3>Word Guessing Game</h3>
+                <div class="game-content">
+                    <p>Guess the word based on its definition:</p>
+                    <p id="game-definition">A book or electronic resource that lists the words of a language and gives their meaning</p>
+                    <input type="text" id="game-guess" placeholder="Your guess...">
+                    <button id="game-submit">Submit</button>
+                    <p id="game-feedback"></p>
+                    <button id="game-next" style="display: none;">Next Word</button>
+                </div>
+            </div>
         </div>
     </div>
+
+    <div class="toast" id="toast"></div>
 
     <script src="../src/js/script.js"></script>
 </body>

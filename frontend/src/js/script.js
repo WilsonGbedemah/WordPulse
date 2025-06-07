@@ -11,9 +11,6 @@ const playBtn = document.getElementById('play-btn');
 const playIcon = document.getElementById('play-icon');
 const waveAnimation = document.getElementById('wave-animation');
 const waveBars = document.querySelectorAll('.wave-bar');
-const progressBar = document.getElementById('progress-bar');
-const currentTimeDisplay = document.getElementById('current-time');
-const durationDisplay = document.getElementById('duration');
 const volumeIcon = document.getElementById('volume-icon');
 const volumeBar = document.getElementById('volume-bar');
 const settingsBtn = document.getElementById('settings-btn');
@@ -28,12 +25,46 @@ const historyContainer = document.getElementById('history-container');
 const historyList = document.getElementById('history-list');
 const clearHistoryBtn = document.getElementById('clear-history-btn');
 const themeToggle = document.getElementById('theme-toggle');
+const notification = document.getElementById('notification');
+const closeNotification = document.getElementById('close-notification');
+const dailyWordText = document.getElementById('daily-word-text');
+const searchInsights = document.getElementById('search-insights');
+const recentSearches = document.getElementById('recent-searches');
+const gameBtn = document.getElementById('game-btn');
+const gameContainer = document.getElementById('game-container');
+const gameDefinition = document.getElementById('game-definition');
+const gameGuess = document.getElementById('game-guess');
+const gameSubmit = document.getElementById('game-submit');
+const gameFeedback = document.getElementById('game-feedback');
+const gameNext = document.getElementById('game-next');
+const toast = document.getElementById('toast');
 
 // Audio variables
 let audio = new Audio();
 let isPlaying = false;
 let playbackRate = 1;
 let animationFrameId = null;
+
+// Game variables
+let currentGameWord = '';
+let currentGameDefinition = '';
+const gameWords = [
+    { word: 'dictionary', definition: 'A book or electronic resource that lists the words of a language and gives their meaning' },
+    { word: 'serendipity', definition: 'The occurrence of events by chance in a happy or beneficial way' },
+    { word: 'ephemeral', definition: 'Lasting for a very short time' },
+    { word: 'ubiquitous', definition: 'Present, appearing, or found everywhere' },
+    { word: 'eloquent', definition: 'Fluent or persuasive in speaking or writing' }
+];
+let recentSearchWords = [];
+
+// Daily word
+const dailyWords = [
+    { word: 'serendipity', definition: 'The occurrence of events by chance in a happy or beneficial way' },
+    { word: 'ephemeral', definition: 'Lasting for a very short time' },
+    { word: 'ubiquitous', definition: 'Present, appearing, or found everywhere' },
+    { word: 'eloquent', definition: 'Fluent or persuasive in speaking or writing' },
+    { word: 'resilient', definition: 'Able to withstand or recover quickly from difficult conditions' }
+];
 
 // Initialize with default word
 window.addEventListener('DOMContentLoaded', () => {
@@ -46,14 +77,8 @@ window.addEventListener('DOMContentLoaded', () => {
     audio.src = "https://api.dictionaryapi.dev/media/pronunciations/en/dictionary-us.mp3";
     audio.load();
     
-    audio.addEventListener('loadedmetadata', () => {
-        durationDisplay.textContent = formatTime(audio.duration);
-        progressBar.max = audio.duration;
-    });
-    
     audio.addEventListener('timeupdate', () => {
         currentTimeDisplay.textContent = formatTime(audio.currentTime);
-        progressBar.value = audio.currentTime;
     });
     
     audio.addEventListener('ended', () => {
@@ -67,6 +92,12 @@ window.addEventListener('DOMContentLoaded', () => {
     
     // Load history if any exists
     loadHistory();
+    
+    // Show daily word notification
+    showDailyWord();
+    
+    // Load recent searches
+    loadRecentSearches();
 });
 
 function setupEventListeners() {
@@ -76,7 +107,6 @@ function setupEventListeners() {
         if (e.key === 'Enter') fetchDictionaryData();
     });
     playBtn.addEventListener('click', togglePlay);
-    progressBar.addEventListener('input', setProgress);
     volumeBar.addEventListener('input', setVolume);
     settingsBtn.addEventListener('click', toggleDropdown);
     downloadBtn.addEventListener('click', downloadAudio);
@@ -85,6 +115,10 @@ function setupEventListeners() {
     loadHistoryBtn.addEventListener('click', toggleHistory);
     clearHistoryBtn.addEventListener('click', clearHistory);
     themeToggle.addEventListener('click', toggleTheme);
+    closeNotification.addEventListener('click', closeDailyNotification);
+    gameBtn.addEventListener('click', toggleGame);
+    gameSubmit.addEventListener('click', checkGameAnswer);
+    gameNext.addEventListener('click', setupNewGameWord);
     
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
@@ -106,6 +140,44 @@ function toggleTheme() {
 function updateThemeToggleIcon(theme) {
     const icon = theme === 'dark' ? 'fa-sun' : 'fa-moon';
     themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
+}
+
+// Daily word notification
+function showDailyWord() {
+    const lastShownDate = localStorage.getItem('lastDailyWordDate');
+    const today = new Date().toDateString();
+    
+    if (lastShownDate !== today) {
+        const randomWord = dailyWords[Math.floor(Math.random() * dailyWords.length)];
+        dailyWordText.innerHTML = `Today's word: <strong>${randomWord.word}</strong>`;
+        notification.style.display = 'flex';
+        localStorage.setItem('lastDailyWordDate', today);
+        localStorage.setItem('dailyWord', randomWord.word);
+    }
+}
+
+function closeDailyNotification() {
+    notification.style.display = 'none';
+}
+
+// Recent searches
+function loadRecentSearches() {
+    recentSearchWords = JSON.parse(localStorage.getItem('recentSearches')) || ['dictionary', 'book', 'language'];
+    updateRecentSearchesDisplay();
+}
+
+function updateRecentSearches() {
+    const word = searchedWordDisplay.textContent.toLowerCase();
+    if (!recentSearchWords.includes(word)) {
+        recentSearchWords.unshift(word);
+        if (recentSearchWords.length > 5) recentSearchWords.pop();
+        localStorage.setItem('recentSearches', JSON.stringify(recentSearchWords));
+        updateRecentSearchesDisplay();
+    }
+}
+
+function updateRecentSearchesDisplay() {
+    recentSearches.textContent = recentSearchWords.join(', ');
 }
 
 // Fetch dictionary data
@@ -136,6 +208,7 @@ async function fetchDictionaryData() {
         
         const data = await response.json();
         displayResult(data[0]);
+        updateRecentSearches();
         
     } catch (error) {
         showError(typeof error === 'string' ? error : error.message);
@@ -161,11 +234,6 @@ function displayResult(data) {
         audio.load();
         audioPlayer.style.display = 'flex';
         
-        audio.addEventListener('loadedmetadata', () => {
-            durationDisplay.textContent = formatTime(audio.duration);
-            progressBar.max = audio.duration;
-        });
-        
         downloadBtn.style.display = 'block';
     } else {
         audioPlayer.style.display = 'none';
@@ -188,6 +256,7 @@ function displayResult(data) {
     resultDiv.style.display = 'block';
     errorDiv.style.display = 'none';
     historyContainer.style.display = 'none';
+    gameContainer.style.display = 'none';
 }
 
 // Audio player functions
@@ -230,11 +299,6 @@ function stopWaveAnimation() {
         bar.style.height = '10px';
         bar.style.animation = 'none';
     });
-}
-
-function setProgress() {
-    audio.currentTime = progressBar.value;
-    currentTimeDisplay.textContent = formatTime(audio.currentTime);
 }
 
 function setVolume() {
@@ -317,6 +381,7 @@ function toggleHistory() {
     } else {
         historyContainer.style.display = 'block';
         loadHistoryBtn.innerHTML = '<i class="fas fa-history"></i> Hide History';
+        gameContainer.style.display = 'none';
         loadHistory();
     }
 }
@@ -332,21 +397,60 @@ function clearSearch() {
     searchedWordInput.focus();
 }
 
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
+// Word Game functions
+function toggleGame() {
+    if (gameContainer.style.display === 'block') {
+        gameContainer.style.display = 'none';
+        gameBtn.innerHTML = '<i class="fas fa-gamepad"></i> Word Game';
+    } else {
+        setupNewGameWord();
+        gameContainer.style.display = 'block';
+        gameBtn.innerHTML = '<i class="fas fa-gamepad"></i> Hide Game';
+        historyContainer.style.display = 'none';
+        loadHistoryBtn.innerHTML = '<i class="fas fa-history"></i> Show History';
+    }
+}
+
+function setupNewGameWord() {
+    const randomIndex = Math.floor(Math.random() * gameWords.length);
+    currentGameWord = gameWords[randomIndex].word;
+    currentGameDefinition = gameWords[randomIndex].definition;
     
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
+    gameDefinition.textContent = currentGameDefinition;
+    gameGuess.value = '';
+    gameFeedback.textContent = '';
+    gameNext.style.display = 'none';
+    gameSubmit.style.display = 'block';
+}
+
+function checkGameAnswer() {
+    const userGuess = gameGuess.value.trim().toLowerCase();
+    
+    if (!userGuess) {
+        gameFeedback.textContent = 'Please enter your guess';
+        gameFeedback.style.color = 'var(--error-color)';
+        return;
+    }
+    
+    if (userGuess === currentGameWord.toLowerCase()) {
+        gameFeedback.textContent = 'Correct! Well done!';
+        gameFeedback.style.color = 'var(--notification-color)';
+    } else {
+        gameFeedback.textContent = `Incorrect. The word was "${currentGameWord}".`;
+        gameFeedback.style.color = 'var(--error-color)';
+    }
+    
+    gameSubmit.style.display = 'none';
+    gameNext.style.display = 'block';
+}
+
+// Toast notification
+function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
     
     setTimeout(() => {
         toast.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(toast);
-        }, 300);
     }, 3000);
 }
 
@@ -356,4 +460,5 @@ function showError(message) {
     document.getElementById('error-text').textContent = message;
     resultDiv.style.display = 'none';
     historyContainer.style.display = 'none';
+    gameContainer.style.display = 'none';
 }
