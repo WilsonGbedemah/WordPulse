@@ -1,24 +1,29 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Dictionary API using AWS Lambda
+Description: WordPulse Dictionary Backend
+
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 256
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        NODE_ENV: production
 
 Resources:
-  DictionaryApiFunction:
+  DictionaryAPI:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambda/
-      Handler: dictionary-api.handler
-      Runtime: nodejs18.x
-      MemorySize: 512
-      Timeout: 10
+      CodeUri: src/
+      Handler: index.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
       Events:
-        Api:
+        ApiEvent:
           Type: Api
           Properties:
-            Path: /
+            Path: /lookup
             Method: GET
 
-Outputs:
-  ApiUrl:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  # Add more functions as needed

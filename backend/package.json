@@ -1,0 +1,12 @@
+{
+  "name": "wordpulse-backend",
+  "version": "1.0.0",
+  "description": "Backend for WordPulse dictionary",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1235.0"
+  }
+}
