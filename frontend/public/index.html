@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordPulse - Advanced Dictionary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../src/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <h1>WordPulse</h1>
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            <p class="subtitle">Search any word to discover its meaning</p>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchedWord" placeholder="Enter word..." autocomplete="off">
+                <button id="search-btn"><i class="fas fa-search"></i> Search</button>
+                <button id="clear-btn"><i class="fas fa-times"></i> Clear</button>
+            </div>
+        </div>
+
+        <div class="result-container">
+            <div class="result" id="result">
+                <div class="word-display">
+                    <h2 id="searched-word">dictionary</h2>
+                    <p id="phonetic" class="phonetic-text">/ˈdɪkʃəˌnɛri/</p>
+                </div>
+
+                <div class="audio-player" id="audio-player">
+                    <button class="play-btn" id="play-btn">
+                        <i class="fas fa-play" id="play-icon"></i>
+                    </button>
+                    <div class="wave-animation" id="wave-animation">
+                        <span class="wave-bar"></span>
+                        <span class="wave-bar"></span>
+                        <span class="wave-bar"></span>
+                        <span class="wave-bar"></span>
+                        <span class="wave-bar"></span>
+                    </div>
+                    <div class="progress-container">
+                        <span class="time" id="current-time">0:00</span>
+                        <input type="range" id="progress-bar" class="progress-bar" value="0">
+                        <span class="time" id="duration">0:00</span>
+                    </div>
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up" id="volume-icon"></i>
+                        <input type="range" id="volume-bar" class="volume-bar" min="0" max="1" step="0.01" value="1">
+                    </div>
+                    <div class="settings-dropdown">
+                        <button class="settings-btn" id="settings-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-content" id="dropdown-content">
+                            <a href="#" id="download-btn">Download Audio</a>
+                            <a href="#" id="speed-btn">Playback Speed: 1x</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="definition-container">
+                    <div class="part-of-speech" id="part-of-speech">noun</div>
+                    <div class="definition" id="definition">A book or electronic resource that lists the words of a language and gives their meaning, or gives the equivalent words in a different language.</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="save-btn"><i class="far fa-bookmark"></i> Save to History</button>
+                    <button id="load-history-btn"><i class="fas fa-history"></i> Show History</button>
+                </div>
+            </div>
+
+            <div class="error-message" id="error-message" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="error-text"></span>
+            </div>
+
+            <div class="history-container" id="history-container" style="display: none;">
+                <h3>Saved Words</h3>
+                <div class="history-list" id="history-list"></div>
+                <button id="clear-history-btn" class="clear-history-btn"><i class="fas fa-trash"></i> Clear History</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../src/js/script.js"></script>
+</body>
+</html>
