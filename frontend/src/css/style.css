@@ -16,7 +16,7 @@
     --primary-color: #4361ee;
     --secondary-color: #3a5bd9;
     --background-color: #0a192f;
-    --card-color: #172a45;
+    --card-color: #000000;
     --text-color: #e6f1ff;
     --text-secondary: #8892b0;
     --highlight-color: #64ffda;
@@ -52,12 +52,13 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
 }
 
 .theme-toggle {
     background: none;
     border: none;
-    color: var(--text-color);
+    color: var(--notification-color);
     font-size: 1.2rem;
     cursor: pointer;
     padding: 0.5rem;
@@ -213,7 +214,7 @@ header .subtitle {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background-color: rgba(10, 25, 47, 0.1);
+    background-color: rgba(134, 153, 181, 0.1);
     padding: 1rem;
     border-radius: 10px;
     margin-bottom: 1.5rem;
@@ -222,7 +223,7 @@ header .subtitle {
 }
 
 [data-theme="dark"] .audio-player {
-    background-color: rgba(10, 25, 47, 0.5);
+    background-color: rgba(30, 73, 136, 0.5);
 }
 
 .play-btn {
