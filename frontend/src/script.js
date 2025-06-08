@@ -181,6 +181,10 @@ function updateRecentSearchesDisplay() {
 }
 
 // Fetch dictionary data
+// Add this near the top with your other constants (around line 6)
+const API_ENDPOINT = "https://ko3xb7nbeg.execute-api.us-east-1.amazonaws.com/Prod/lookup"; // Replace with your actual Lambda URL
+
+// Then modify the fetchDictionaryData function (around line 215)
 async function fetchDictionaryData() {
     const word = searchedWordInput.value.trim();
     
@@ -194,12 +198,13 @@ async function fetchDictionaryData() {
         searchBtn.disabled = true;
         searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
         
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        // Updated fetch call to use your Lambda
+        const response = await fetch(`${API_ENDPOINT}?word=${encodeURIComponent(word)}`);
         
         if (!response.ok) {
             throw new Error(await response.text().then(text => {
                 try {
-                    return JSON.parse(text).message || 'Word not found';
+                    return JSON.parse(text).error || 'Word not found';
                 } catch {
                     return 'Word not found';
                 }
@@ -207,6 +212,7 @@ async function fetchDictionaryData() {
         }
         
         const data = await response.json();
+        // Keep the rest of your display logic the same
         displayResult(data[0]);
         updateRecentSearches();
         
