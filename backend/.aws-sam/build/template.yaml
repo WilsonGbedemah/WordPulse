@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: WordPulse Dictionary Backend
-
 Globals:
   Function:
     Timeout: 10
@@ -10,20 +9,19 @@ Globals:
     Environment:
       Variables:
         NODE_ENV: production
-
 Resources:
   DictionaryAPI:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./
+      CodeUri: DictionaryAPI
       Handler: src/index.handler
       Policies:
-        - AWSLambdaBasicExecutionRole
+      - AWSLambdaBasicExecutionRole
       Events:
         ApiEvent:
           Type: Api
           Properties:
             Path: /lookup
             Method: GET
-
-  # Add more functions as needed
+    Metadata:
+      SamResourceId: DictionaryAPI
