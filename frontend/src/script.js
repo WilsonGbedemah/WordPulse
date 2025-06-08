@@ -181,7 +181,6 @@ function updateRecentSearchesDisplay() {
 }
 
 // Fetch dictionary data
-// Add this near the top with your other constants (around line 6)
 const API_ENDPOINT = "https://ko3xb7nbeg.execute-api.us-east-1.amazonaws.com/Prod/lookup"; // Replace with your actual Lambda URL
 
 // Then modify the fetchDictionaryData function (around line 215)
@@ -224,6 +223,9 @@ async function fetchDictionaryData() {
         searchBtn.innerHTML = '<i class="fas fa-search"></i> Search';
     }
 }
+
+
+
 
 // Display results
 function displayResult(data) {
