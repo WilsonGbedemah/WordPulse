@@ -1,16 +1,12 @@
 version: 1
 frontend:
   phases:
-    preBuild:
-      commands:
-        - echo "Installing dependencies if any..."
     build:
       commands:
-        - echo "Building static site from src directory"
+        - echo "Building static site"
   artifacts:
-    baseDirectory: /src       # Critical - points to your files
+    baseDirectory: /src       # Points to your files
     files:
       - '**/*'                # Include all files
   cache:
-    paths:
-      - node_modules/**/*     # Only needed if using npm
+    paths: []
