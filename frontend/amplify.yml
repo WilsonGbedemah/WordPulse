@@ -1,15 +1,12 @@
 version: 1
 frontend:
   phases:
-    preBuild:
-      commands:
-        - npm install
     build:
       commands:
-        - echo "Nothing to build - static site"
+        - echo "Building static site"
   artifacts:
-    baseDirectory: /
+    baseDirectory: /src   # 👈 Key change: Look in /src instead of root
     files:
-      - '**/*'
+      - '**/*'           # Include all files in /src
   cache:
     paths: []
