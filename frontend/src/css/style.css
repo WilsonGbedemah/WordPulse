@@ -360,7 +360,54 @@ header .subtitle {
 }
 
 [data-theme="dark"] .definition {
-    background-color: rgba(10, 25, 47, 0.5);
+    background-color: rgba(30, 73, 136, 0.5)
+}
+
+.synonyms-antonyms-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.synonyms-box, .antonyms-box {
+    flex: 1;
+    min-width: 200px;
+    background-color: rgba(10, 25, 47, 0.1);
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+[data-theme="dark"] .synonyms-box,
+[data-theme="dark"] .antonyms-box {
+    background-color: rgba(30, 73, 136, 0.5)
+}
+
+.synonyms-box h3, .antonyms-box h3 {
+    color: var(--highlight-color);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.synonyms-list, .antonyms-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.synonyms-list span, .antonyms-list span {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+.synonyms-list span:hover, .antonyms-list span:hover {
+    background-color: var(--secondary-color);
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 .action-buttons {

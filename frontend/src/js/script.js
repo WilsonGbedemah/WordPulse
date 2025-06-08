@@ -19,6 +19,8 @@ const downloadBtn = document.getElementById('download-btn');
 const speedBtn = document.getElementById('speed-btn');
 const partOfSpeechDisplay = document.getElementById('part-of-speech');
 const definitionDisplay = document.getElementById('definition');
+const synonymsList = document.getElementById('synonyms-list');
+const antonymsList = document.getElementById('antonyms-list');
 const saveBtn = document.getElementById('save-btn');
 const loadHistoryBtn = document.getElementById('load-history-btn');
 const historyContainer = document.getElementById('history-container');
@@ -181,7 +183,7 @@ function updateRecentSearchesDisplay() {
 }
 
 // Fetch dictionary data
-const API_ENDPOINT = "https://ko3xb7nbeg.execute-api.us-east-1.amazonaws.com/Prod/lookup"; // Replace with your actual Lambda URL
+const API_ENDPOINT = "https://ko3xb7nbeg.execute-api.us-east-1.amazonaws.com/Prod/lookup"; 
 
 // Then modify the fetchDictionaryData function (around line 215)
 async function fetchDictionaryData() {
@@ -241,7 +243,6 @@ function displayResult(data) {
         audio.src = audioSrc;
         audio.load();
         audioPlayer.style.display = 'flex';
-        
         downloadBtn.style.display = 'block';
     } else {
         audioPlayer.style.display = 'none';
@@ -257,6 +258,44 @@ function displayResult(data) {
             definitionDisplay.textContent = firstMeaning.definitions[0].definition;
         } else {
             definitionDisplay.textContent = 'No definition available';
+        }
+    }
+    
+    // Display synonyms and antonyms
+    synonymsList.innerHTML = '';
+    antonymsList.innerHTML = '';
+    
+    if (data.meanings && data.meanings.length > 0) {
+        const firstMeaning = data.meanings[0];
+        
+        // Display synonyms
+        if (firstMeaning.synonyms && firstMeaning.synonyms.length > 0) {
+            firstMeaning.synonyms.slice(0, 5).forEach(synonym => {
+                const span = document.createElement('span');
+                span.textContent = synonym;
+                span.addEventListener('click', () => {
+                    searchedWordInput.value = synonym;
+                    fetchDictionaryData();
+                });
+                synonymsList.appendChild(span);
+            });
+        } else {
+            synonymsList.innerHTML = '<span>No synonyms found</span>';
+        }
+        
+        // Display antonyms
+        if (firstMeaning.antonyms && firstMeaning.antonyms.length > 0) {
+            firstMeaning.antonyms.slice(0, 5).forEach(antonym => {
+                const span = document.createElement('span');
+                span.textContent = antonym;
+                span.addEventListener('click', () => {
+                    searchedWordInput.value = antonym;
+                    fetchDictionaryData();
+                });
+                antonymsList.appendChild(span);
+            });
+        } else {
+            antonymsList.innerHTML = '<span>No antonyms found</span>';
         }
     }
     
