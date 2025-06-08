@@ -10,6 +10,7 @@
     --wave-color: #4361ee;
     --notification-color: #4caf50;
     --game-color: #9c27b0;
+    --theme-toggle-text-color: var(--text-secondary);
 }
 
 [data-theme="dark"] {
@@ -24,6 +25,7 @@
     --wave-color: #64ffda;
     --notification-color: #2e7d32;
     --game-color: #7b1fa2;
+    --theme-toggle-text-color: var(--highlight-color);
 }
 
 * {
@@ -55,10 +57,23 @@ body {
     gap: 1rem;
 }
 
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.theme-toggle-text {
+    font-size: 0.9rem;
+    color: var(--theme-toggle-text-color);
+    transition: color 0.3s ease;
+}
+
 .theme-toggle {
     background: none;
     border: none;
-    color: var(--notification-color);
+    color: var(--highlight-color);
     font-size: 1.2rem;
     cursor: pointer;
     padding: 0.5rem;
@@ -69,6 +84,11 @@ body {
 .theme-toggle:hover {
     background-color: rgba(0, 0, 0, 0.1);
 }
+
+[data-theme="dark"] .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 
 header {
     text-align: center;
@@ -137,10 +157,12 @@ header .subtitle {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
 .search-box input {
     flex: 1;
+    min-width: 0; /* Fix for flexbox overflow */
     padding: 0.75rem 1rem;
     border: 2px solid var(--secondary-color);
     border-radius: 5px;
@@ -151,12 +173,8 @@ header .subtitle {
     transition: all 0.3s ease;
 }
 
-.search-box input:focus {
-    border-color: var(--highlight-color);
-}
-
 .search-box button {
-    padding: 0 1.5rem;
+    padding: 0 1rem;
     border: none;
     border-radius: 5px;
     background-color: var(--primary-color);
@@ -167,6 +185,7 @@ header .subtitle {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 
 .search-box button:hover {

@@ -98,7 +98,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeToggleIcon(savedTheme);
+    updateThemeToggle(savedTheme);
     
     // Set up default audio
     audio.src = "https://api.dictionaryapi.dev/media/pronunciations/en/dictionary-us.mp3";
@@ -160,12 +160,20 @@ function toggleTheme() {
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    updateThemeToggleIcon(newTheme);
+    updateThemeToggle(newTheme);
 }
 
-function updateThemeToggleIcon(theme) {
-    const icon = theme === 'dark' ? 'fa-sun' : 'fa-moon';
-    themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
+function updateThemeToggle(theme) {
+    const themeText = document.querySelector('.theme-toggle-text');
+    const themeIcon = document.querySelector('#theme-toggle i');
+    
+    if (theme === 'dark') {
+        themeText.textContent = 'Light Mode';
+        themeIcon.className = 'fas fa-sun';
+    } else {
+        themeText.textContent = 'Dark Mode';
+        themeIcon.className = 'fas fa-moon';
+    }
 }
 
 // Daily word notification
