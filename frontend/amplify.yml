@@ -6,7 +6,7 @@ frontend:
         - echo "Installing dependencies"
     build:
       commands:
-        - echo "Building static site"
+        - echo "No build needed"
   artifacts:
     baseDirectory: /src    # Critical! Must match your folder
     files:
