@@ -103,15 +103,19 @@
                 <button id="clear-history-btn" class="clear-history-btn"><i class="fas fa-trash"></i> Clear History</button>
             </div>
 
-            <div class="game-container" id="game-container" style="display: none;">
+             <div class="game-container" id="game-container" style="display: none;">
                 <h3>Word Guessing Game</h3>
                 <div class="game-content">
-                    <p>Guess the word based on its definition:</p>
+                    <p>Question <span id="game-question-number">1</span> of 10:</p>
                     <p id="game-definition">A book or electronic resource that lists the words of a language and gives their meaning</p>
                     <input type="text" id="game-guess" placeholder="Your guess...">
                     <button id="game-submit">Submit</button>
                     <p id="game-feedback"></p>
-                    <button id="game-next" style="display: none;">Next Word</button>
+                    <div id="game-results" style="display: none;">
+                        <h4>Your Results:</h4>
+                        <div id="game-results-list"></div>
+                        <button id="play-again-btn" class="play-again-btn">Play Again</button>
+                    </div>
                 </div>
             </div>
         </div>

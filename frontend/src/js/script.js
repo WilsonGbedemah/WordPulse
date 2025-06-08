@@ -34,11 +34,14 @@ const searchInsights = document.getElementById('search-insights');
 const recentSearches = document.getElementById('recent-searches');
 const gameBtn = document.getElementById('game-btn');
 const gameContainer = document.getElementById('game-container');
+const gameQuestionNumber = document.getElementById('game-question-number');
 const gameDefinition = document.getElementById('game-definition');
 const gameGuess = document.getElementById('game-guess');
 const gameSubmit = document.getElementById('game-submit');
 const gameFeedback = document.getElementById('game-feedback');
-const gameNext = document.getElementById('game-next');
+const gameResults = document.getElementById('game-results');
+const gameResultsList = document.getElementById('game-results-list');
+const playAgainBtn = document.getElementById('play-again-btn');
 const toast = document.getElementById('toast');
 
 // Audio variables
@@ -48,16 +51,36 @@ let playbackRate = 1;
 let animationFrameId = null;
 
 // Game variables
-let currentGameWord = '';
-let currentGameDefinition = '';
+let gameState = {
+    currentQuestion: 0,
+    questions: [],
+    userAnswers: [],
+    score: 0,
+    inProgress: false
+};
+
 const gameWords = [
     { word: 'dictionary', definition: 'A book or electronic resource that lists the words of a language and gives their meaning' },
     { word: 'serendipity', definition: 'The occurrence of events by chance in a happy or beneficial way' },
     { word: 'ephemeral', definition: 'Lasting for a very short time' },
     { word: 'ubiquitous', definition: 'Present, appearing, or found everywhere' },
-    { word: 'eloquent', definition: 'Fluent or persuasive in speaking or writing' }
+    { word: 'eloquent', definition: 'Fluent or persuasive in speaking or writing' },
+    { word: 'resilient', definition: 'Able to withstand or recover quickly from difficult conditions' },
+    { word: 'ambiguous', definition: 'Open to more than one interpretation' },
+    { word: 'benevolent', definition: 'Well meaning and kindly' },
+    { word: 'capricious', definition: 'Given to sudden and unaccountable changes of mood or behavior' },
+    { word: 'diligent', definition: 'Having or showing care and conscientiousness in one\'s work or duties' },
+    { word: 'ebullient', definition: 'Full of energy and enthusiasm' },
+    { word: 'fastidious', definition: 'Very attentive to and concerned about accuracy and detail' },
+    { word: 'gregarious', definition: 'Fond of company; sociable' },
+    { word: 'hackneyed', definition: 'Lacking significance through having been overused' },
+    { word: 'iconoclast', definition: 'A person who attacks cherished beliefs or institutions' },
+    { word: 'juxtapose', definition: 'To place things side by side for comparison' },
+    { word: 'kaleidoscope', definition: 'A constantly changing pattern or sequence of elements' },
+    { word: 'languid', definition: 'Slow, relaxed, or lacking energy' },
+    { word: 'mellifluous', definition: 'Pleasant-sounding; sweet or musical' },
+    { word: 'nefarious', definition: 'Wicked or criminal' }
 ];
-let recentSearchWords = [];
 
 // Daily word
 const dailyWords = [
@@ -67,6 +90,8 @@ const dailyWords = [
     { word: 'eloquent', definition: 'Fluent or persuasive in speaking or writing' },
     { word: 'resilient', definition: 'Able to withstand or recover quickly from difficult conditions' }
 ];
+
+let recentSearchWords = [];
 
 // Initialize with default word
 window.addEventListener('DOMContentLoaded', () => {
@@ -78,10 +103,6 @@ window.addEventListener('DOMContentLoaded', () => {
     // Set up default audio
     audio.src = "https://api.dictionaryapi.dev/media/pronunciations/en/dictionary-us.mp3";
     audio.load();
-    
-    audio.addEventListener('timeupdate', () => {
-        currentTimeDisplay.textContent = formatTime(audio.currentTime);
-    });
     
     audio.addEventListener('ended', () => {
         playIcon.className = 'fas fa-play';
@@ -120,7 +141,10 @@ function setupEventListeners() {
     closeNotification.addEventListener('click', closeDailyNotification);
     gameBtn.addEventListener('click', toggleGame);
     gameSubmit.addEventListener('click', checkGameAnswer);
-    gameNext.addEventListener('click', setupNewGameWord);
+    gameGuess.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkGameAnswer();
+    });
+    playAgainBtn.addEventListener('click', startNewGame);
     
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
@@ -185,7 +209,6 @@ function updateRecentSearchesDisplay() {
 // Fetch dictionary data
 const API_ENDPOINT = "https://ko3xb7nbeg.execute-api.us-east-1.amazonaws.com/Prod/lookup"; 
 
-// Then modify the fetchDictionaryData function (around line 215)
 async function fetchDictionaryData() {
     const word = searchedWordInput.value.trim();
     
@@ -213,7 +236,6 @@ async function fetchDictionaryData() {
         }
         
         const data = await response.json();
-        // Keep the rest of your display logic the same
         displayResult(data[0]);
         updateRecentSearches();
         
@@ -225,9 +247,6 @@ async function fetchDictionaryData() {
         searchBtn.innerHTML = '<i class="fas fa-search"></i> Search';
     }
 }
-
-
-
 
 // Display results
 function displayResult(data) {
@@ -357,12 +376,6 @@ function setVolume() {
     }
 }
 
-function formatTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-}
-
 // Dropdown functions
 function toggleDropdown() {
     dropdownContent.classList.toggle('show');
@@ -392,7 +405,7 @@ function saveToHistory() {
     
     if (!history.includes(word.toLowerCase())) {
         history.unshift(word.toLowerCase());
-        if (history.length > 20) history.pop(); // Limit to 20 items
+        if (history.length > 20) history.pop();
         localStorage.setItem('dictionaryHistory', JSON.stringify(history));
         showToast('Word saved to history!');
         loadHistory();
@@ -449,8 +462,9 @@ function toggleGame() {
     if (gameContainer.style.display === 'block') {
         gameContainer.style.display = 'none';
         gameBtn.innerHTML = '<i class="fas fa-gamepad"></i> Word Game';
+        gameState.inProgress = false;
     } else {
-        setupNewGameWord();
+        startNewGame();
         gameContainer.style.display = 'block';
         gameBtn.innerHTML = '<i class="fas fa-gamepad"></i> Hide Game';
         historyContainer.style.display = 'none';
@@ -458,20 +472,50 @@ function toggleGame() {
     }
 }
 
-function setupNewGameWord() {
-    const randomIndex = Math.floor(Math.random() * gameWords.length);
-    currentGameWord = gameWords[randomIndex].word;
-    currentGameDefinition = gameWords[randomIndex].definition;
+function startNewGame() {
+    // Reset game state
+    gameState = {
+        currentQuestion: 0,
+        questions: [],
+        userAnswers: [],
+        score: 0,
+        inProgress: true
+    };
+
+    // Select 10 random questions without duplicates
+    const shuffled = [...gameWords].sort(() => 0.5 - Math.random());
+    gameState.questions = shuffled.slice(0, 10);
     
-    gameDefinition.textContent = currentGameDefinition;
+    // Reset UI elements
+    gameResults.style.display = 'none';
+    gameGuess.style.display = 'block';
+    gameSubmit.style.display = 'block';
+    gameFeedback.style.display = 'block';
+    gameFeedback.textContent = '';
+    gameGuess.value = '';
+    
+    // Setup first question
+    setupGameQuestion();
+}
+
+function setupGameQuestion() {
+    if (gameState.currentQuestion >= gameState.questions.length) {
+        endGame();
+        return;
+    }
+
+    const current = gameState.questions[gameState.currentQuestion];
+    gameQuestionNumber.textContent = gameState.currentQuestion + 1;
+    gameDefinition.textContent = current.definition;
     gameGuess.value = '';
     gameFeedback.textContent = '';
-    gameNext.style.display = 'none';
-    gameSubmit.style.display = 'block';
+    gameFeedback.style.color = '';
+    gameSubmit.disabled = false;
 }
 
 function checkGameAnswer() {
     const userGuess = gameGuess.value.trim().toLowerCase();
+    const correctAnswer = gameState.questions[gameState.currentQuestion].word.toLowerCase();
     
     if (!userGuess) {
         gameFeedback.textContent = 'Please enter your guess';
@@ -479,16 +523,63 @@ function checkGameAnswer() {
         return;
     }
     
-    if (userGuess === currentGameWord.toLowerCase()) {
-        gameFeedback.textContent = 'Correct! Well done!';
+    // Store the user's answer
+    const isCorrect = userGuess === correctAnswer;
+    gameState.userAnswers.push({
+        question: gameState.questions[gameState.currentQuestion],
+        userAnswer: userGuess,
+        isCorrect: isCorrect
+    });
+    
+    if (isCorrect) {
+        gameState.score++;
+        gameFeedback.textContent = 'Correct!';
         gameFeedback.style.color = 'var(--notification-color)';
     } else {
-        gameFeedback.textContent = `Incorrect. The word was "${currentGameWord}".`;
+        gameFeedback.textContent = 'Incorrect! Try the next question.';
         gameFeedback.style.color = 'var(--error-color)';
     }
     
+    gameSubmit.disabled = true;
+    
+    // Move to next question after a short delay
+    setTimeout(() => {
+        gameState.currentQuestion++;
+        if (gameState.currentQuestion < gameState.questions.length) {
+            setupGameQuestion();
+        } else {
+            endGame();
+        }
+    }, 1500);
+}
+
+function endGame() {
+    gameState.inProgress = false;
+    
+    // Generate results HTML
+    let resultsHTML = `<div class="game-score">Your score: <span>${gameState.score}/${gameState.questions.length}</span></div>`;
+    
+    gameState.userAnswers.forEach((answer, index) => {
+        resultsHTML += `
+            <div class="game-result-item ${answer.isCorrect ? 'correct' : 'incorrect'}">
+                <p><strong>Question ${index + 1}:</strong> ${answer.question.definition}</p>
+                <p><strong>Your answer:</strong> ${answer.userAnswer}</p>
+                <p><strong>Correct answer:</strong> ${answer.question.word}</p>
+                ${answer.isCorrect ? 
+                    '<p class="result-correct"><i class="fas fa-check"></i> Correct</p>' : 
+                    '<p class="result-incorrect"><i class="fas fa-times"></i> Incorrect</p>'}
+            </div>
+        `;
+    });
+    
+    gameResultsList.innerHTML = resultsHTML;
+    
+    // Show results and hide question elements
+    gameDefinition.style.display = 'none';
+    gameGuess.style.display = 'none';
     gameSubmit.style.display = 'none';
-    gameNext.style.display = 'block';
+    gameFeedback.style.display = 'none';
+    gameResults.style.display = 'block';
 }
 
 // Toast notification
