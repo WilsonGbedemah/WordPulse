@@ -1,12 +1,15 @@
 version: 1
 frontend:
   phases:
+    preBuild:
+      commands:
+        - echo "Installing dependencies"
     build:
       commands:
-        - echo "No build needed for static site"
+        - echo "Building static site"
   artifacts:
-    baseDirectory: /src       # Points to your files
+    baseDirectory: /src    # Critical! Must match your folder
     files:
-      - '**/*'                # Include all files
+      - '**/*'             # Include all files
   cache:
     paths: []
